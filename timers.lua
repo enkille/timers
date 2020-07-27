@@ -95,7 +95,7 @@ ashita.register_event('command', function(command, ntype)
 				_common.msg ( '  Available options:' )
 				_common.msg ( '    autohide [true|false]' )
 				_common.msg ( '    direction [ltr|rtl]' )
-				_common.msg ( '    scale [single|all]' )
+				--_common.msg ( '    scale [single|all]' )
 				--_common.msg ( '  For additional help, type "/timer help config [option]' )
 			end
 		elseif args[2] == 'remove' then
