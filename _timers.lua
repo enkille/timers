@@ -10,7 +10,7 @@ _timers.config = { }
 
 _timers.list_timers = function()
 	for k,v in ipairs( _timers.timers ) do
-		msg( '[' .. k .. '] : ' .. v.label )
+		_common.msg( '[' .. k .. '] : ' .. v.label )
 	end
 end
 
