@@ -11,6 +11,10 @@ local _common = require '_common'
 local _t = require '_timers'
 local _config = require '_config'
 
+if (ashita.file.dir_exists(AshitaCore:GetAshitaInstallPath() .. '/config/timers') == false) then
+	ashita.file.create_dir(AshitaCore:GetAshitaInstallPath() .. '/config/timers')
+end
+
 ashita.register_event('load', function()
 	_config.load()
 end)

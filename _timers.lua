@@ -2,6 +2,7 @@ local _c = require '_config'
 local _common = require '_common'
 
 local _timers = { }
+local path = AshitaCore:GetAshitaInstallPath() .. '/config/timers/timers.json'
 
 _timers.timers = { }
 _timers.timerpadlength = 0
@@ -46,15 +47,18 @@ _timers.create_timer = function( duration, label )
 	_timers.update_max_length()
 	_timers.sort()
 
+	_timers.save()
 end
 
 _timers.remove_timer = function( id )
 	table.remove(_timers.timers, id)
 	_timers.update_max_length()
+	_timers.save()
 end
 
 _timers.clear_timers = function()
 	_timers.timers = { }
+	_timers.save()
 end
 
 _timers.extend_timer = function( id, duration )
@@ -69,6 +73,7 @@ _timers.extend_timer = function( id, duration )
 	else
 		msg('timer "' .. tostring(i) .. '"not located')
 	end
+	_timers.save()
 end
 
 _timers.draw = function()
@@ -109,5 +114,30 @@ _timers.draw = function()
 	imgui.End()
 
 end
+
+_timers.save = function()
+	local data = ashita.settings.JSON:encode_pretty(_timers.timers, nil, { pretty = true, align_keys = false, indent = '    ' })
+	local f = io.open(path, 'w')
+
+	if (f == nil) then
+		_common.msg('Failed to write timer to file. Timer will not exist after logging out.')
+		return true;
+	end
+
+	f:write(data);
+	f:close();
+end
+
+_timers.load = function()
+	local data = ashita.settings.load(path)
+
+	if (data == nil) then
+		return true
+	else
+		_timers.timers = data
+	end
+end
+
+_timers.load()
 
 return _timers

@@ -1,7 +1,9 @@
 require 'imguidef'
 
+local _common = require '_common'
+
 local _config = { }
-local path = AshitaCore:GetAshitaInstallPath() .. '/config/timers.json'
+local path = AshitaCore:GetAshitaInstallPath() .. '/config/timers/config.json'
 
 _config.settings = { }
 
@@ -23,7 +25,7 @@ _config.save = function()
 	local f = io.open(path, 'w')
 
 	if (f == nil) then
-		err('Failed to save settings.')
+		_common.msg('Failed to save settings.')
 		return true;
 	end
 
@@ -35,7 +37,6 @@ _config.load = function()
 	local data = ashita.settings.load(path)
 
 	if (data == nil) then
-		print ( 'new data' )
 		_config.settings = defaults
 		_config.save()
 		return true;
