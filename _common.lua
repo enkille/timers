@@ -1,5 +1,14 @@
 local _common = { }
 
+_common.generate_uuid = function()
+	local random = math.random
+	local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+	return string.gsub(template, '[xy]', function (c)
+		local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
+		return string.format('%x', v)
+	end)
+end
+
 _common.has_value = function ( tab, val )
     for index, value in ipairs(tab) do
         if value == val then
@@ -19,23 +28,27 @@ _common.parse_duration = function ( duration )
 
 	local seconds = 0
 
-	local rx = ashita.regex.match( duration, '^(\\d*)$' )
-	if ( rx ~= nil ) then
-		seconds = tonumber(rx[1])
-	else
-		local h = ashita.regex.search( duration, '(\\d*)[H|h]{1}' )
-		local m = ashita.regex.search( duration, '(\\d*)[M|m]{1}' )
-		local s = ashita.regex.search( duration, '(\\d*)[S|s]{1}' )
+	if ( duration ~= nil ) then
+		local rx = ashita.regex.match( duration, '^(\\d*)$' )
+		if ( rx ~= nil ) then
+			seconds = tonumber(rx[1])
+		else
+			local h = ashita.regex.search( duration, '(\\d*)[H|h]{1}' )
+			local m = ashita.regex.search( duration, '(\\d*)[M|m]{1}' )
+			local s = ashita.regex.search( duration, '(\\d*)[S|s]{1}' )
 
-		if ( h ~= nil ) then
-			seconds = seconds + (tonumber(h[1]) * 60 * 60)
+			if ( h ~= nil ) then
+				seconds = seconds + (tonumber(h[1]) * 60 * 60)
+			end
+			if ( m ~= nil ) then
+				seconds = seconds + (tonumber(m[1]) * 60)
+			end
+			if ( s ~= nil ) then
+				seconds = seconds + tonumber(s[1])
+			end
 		end
-		if ( m ~= nil ) then
-			seconds = seconds + (tonumber(m[1]) * 60)
-		end
-		if ( s ~= nil ) then
-			seconds = seconds + tonumber(s[1])
-		end
+	else
+		seconds = 0
 	end
 
 	return seconds

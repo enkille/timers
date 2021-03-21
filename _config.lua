@@ -15,7 +15,8 @@ local defaults = {
 	position_y = 100,
 	anchor = "BOTTOMLEFT",
 	notify = nil,
-	notifyonlyifleader = true
+	notifyonlyifleader = true,
+	sortby = 'time'
 }
 
 _config.visible = false

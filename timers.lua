@@ -74,13 +74,15 @@ ashita.register_event('command', function(command, ntype)
 	if ( #args == 3 ) then
 		if args[2] == '?' or args[2] == 'help' then
 			if args[3] == 'add' then
-				_common.msg ( 'Command: /timer add [duration] [label]' )
+				_common.msg ( 'Command: /timer add [duration] [label] [[repetitions]]' )
 				_common.msg ( '  Will add a timer based on given parameters' )
 				_common.msg ( '  [duration]: Required - Specifies seconds by default' )
 				_common.msg ( '    Also accepts duration strings formatted as "#h#m#s"' )
 				_common.msg ( '  [label]: Required - Specifies a text label' )
 				_common.msg ( '    If spaces are used, must be enclosed in quotes' )
+				_common.msg ( '  [repetitions]: Optional - Specifies repeating timers' )
 				_common.msg ( '  Example: /timer add 3m15s "Monster Respawn"' )
+				_common.msg ( '  Example: /timer add 21h "HNM Respawn" 30m 30m 30m' )
 			elseif args[3] == 'remove' then
 				_common.msg ( 'Command: /timer remove [index]' )
 				_common.msg ( '  Will remove a specified timer' )
@@ -102,6 +104,8 @@ ashita.register_event('command', function(command, ntype)
 				--_common.msg ( '    scale [single|all]' )
 				--_common.msg ( '  For additional help, type "/timer help config [option]' )
 			end
+		elseif args[2] == 'add' then
+			_t.create_timer ( args[3], "unnamed" )
 		elseif args[2] == 'remove' then
 			_t.remove_timer ( args[3] )
 		end
@@ -142,8 +146,33 @@ ashita.register_event('command', function(command, ntype)
 				end
 			end
 
+			if args[3] == 'sortby' then
+				if _common.has_value( { 'pct' }, args[4] ) then
+					_config.settings.sortby = 'pct'
+					_t.sort()
+				elseif _common.has_value( { 'time' }, args[4] ) then
+					_config.settings.sortby = 'time'
+					_t.sort()
+				end
+			end
+
 			_config.save()
 
+		end
+	end
+
+	if ( #args >= 5 ) then
+		if args[2] == 'add' then
+			local duration = args[3]
+			local label = args[4]
+
+			local reps = args
+			table.remove(reps, 1) --remove slash command
+			table.remove(reps, 1) --remove add
+			table.remove(reps, 1) --remove duration
+			table.remove(reps, 1) --remove name
+			
+			_t.create_timer ( duration, label, reps )
 		end
 	end
 
