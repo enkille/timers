@@ -55,6 +55,47 @@ _common.parse_duration = function ( duration )
 
 end
 
+_common.parse_time = function ( time )
+	local t = time
+	local now = os.date('*t')
+
+	local year, month, day, hour, min, sec, ampm
+
+	if ( t ~= nil ) then
+		local rx
+		year = now.year
+		month = now.month
+		day = now.day
+
+		rx = ashita.regex.match( t, '^(\\d{1,2})\\:(\\d{2})\\:(\\d{2})([am|pm]{2}|[am|pm]{0})$' )
+		if ( rx ~= nil ) then
+			hour = tonumber(rx[1])
+			min = tonumber(rx[2])
+			sec = tonumber(rx[3])
+			ampm = rx[4]
+		else
+
+			rx = ashita.regex.match( t, '^(\\d{1,2})\\:(\\d{2})([am|pm]{2}|[am|pm]{0})$' )
+			if ( rx ~= nil ) then
+				hour = tonumber(rx[1])
+				min = tonumber(rx[2])
+				sec = 0
+				ampm = rx[3]
+			else
+				return false
+			end
+		end
+
+		if ( ampm == 'pm' and hour < 12 ) then hour = hour + 12 end
+		t = os.time({year=now.year, month=now.month, day=now.day, hour=hour, min=min, sec=sec})
+		if ( t > os.time() ) then day = day - 1 end
+
+		return os.time( { year=year, month=month, day=day, hour=hour, min=min, sec=sec } )
+
+	end
+	return false
+end
+
 _common.format_time = function ( seconds )
 
 	local tmp = seconds

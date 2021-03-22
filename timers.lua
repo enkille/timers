@@ -57,6 +57,7 @@ ashita.register_event('command', function(command, ntype)
 			_common.msg ( 'Commands: /timer, /timers ' )
 			_common.msg ( 'Sub-commands:' )
 			_common.msg ( '  add: Adds a new timer' )
+			_common.msg ( '  tod: Adds a ToD timer' )
 			_common.msg ( '  remove: Removes a specific timer' )
 			_common.msg ( '  clear: Clears all timers' )
 			_common.msg ( '  extend: Add time to an existing timer' )
@@ -83,6 +84,17 @@ ashita.register_event('command', function(command, ntype)
 				_common.msg ( '  [repetitions]: Optional - Specifies repeating timers' )
 				_common.msg ( '  Example: /timer add 3m15s "Monster Respawn"' )
 				_common.msg ( '  Example: /timer add 21h "HNM Respawn" 30m 30m 30m' )
+			elseif args[3] == 'tod' then
+				_common.msg ( 'Command: /timer tod [time] [duration] [label] [[repetitions]]' )
+				_common.msg ( '  Will add a ToD timer based on given parameters' )
+				_common.msg ( '  [time]: Required - Specifies the time of death' )
+				_common.msg ( '  [duration]: Required - Specifies seconds by default' )
+				_common.msg ( '    Also accepts duration strings formatted as "#h#m#s"' )
+				_common.msg ( '  [label]: Required - Specifies a text label' )
+				_common.msg ( '    If spaces are used, must be enclosed in quotes' )
+				_common.msg ( '  [repetitions]: Optional - Specifies repeating timers' )
+				_common.msg ( '  Example: /timer tod 8:45am 3m15s "Monster Respawn"' )
+				_common.msg ( '  Example: /timer tod 8:45:37 21h "HNM Respawn" 30m 30m 30m' )
 			elseif args[3] == 'remove' then
 				_common.msg ( 'Command: /timer remove [index]' )
 				_common.msg ( '  Will remove a specified timer' )
@@ -162,6 +174,23 @@ ashita.register_event('command', function(command, ntype)
 	end
 
 	if ( #args >= 5 ) then
+		if args[2] == 'tod' then
+			--/timer tod 15:15:00 21h "name"
+			--              3     4    5
+			local time = args[3]
+			local duration = args[4]
+			local label = args[5]
+			local reps = nil
+			if ( #args >= 6 ) then
+				reps = args
+				table.remove(reps, 1) --remove slash command
+				table.remove(reps, 1) --remove tod
+				table.remove(reps, 1) --remove time
+				table.remove(reps, 1) --remove duration
+				table.remove(reps, 1) --remove name
+			end
+			_t.create_timer_from_tod ( time, duration, label, reps )
+		end
 		if args[2] == 'add' then
 			local duration = args[3]
 			local label = args[4]

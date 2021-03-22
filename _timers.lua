@@ -20,7 +20,6 @@ _timers.sort = function()
 	if ( sortby == 'time' ) then
 		table.sort( _timers.timers, function(a, b) return a.finish > b.finish end  )
 	elseif ( sortby == 'pct' ) then
-		--(1-((v.finish - os.time()) / (v.finish - v.start))
 		table.sort( _timers.timers, function(a, b) return (1-((a.finish - os.time()) / (a.finish - a.start))) > (1-((b.finish - os.time()) / (b.finish - b.start))) end  )
 	end
 end
@@ -72,6 +71,30 @@ _timers.create_timer = function( duration, label, ... )
 
 	return timer
 
+end
+
+_timers.update_start_time = function( id, start )
+	if ( _timers.timers ~= nil ) then
+		for k,v in ipairs(_timers.timers) do
+			if ( v.parent == id or v.id == id ) then
+				local diff = v.finish - v.start
+				v.start = start
+				v.finish = v.start + diff
+			end
+		end
+		_timers.update_max_length()
+		_timers.sort()
+		_timers.save()
+	end
+end
+
+_timers.create_timer_from_tod = function( time, duration, label, ... )
+	local reps = ... or nil
+	local start = _common.parse_time( time )
+
+	local t = _timers.create_timer( duration, label, ... )
+
+	_timers.update_start_time( t.id, start )
 end
 
 _timers.remove_timer = function( id )
