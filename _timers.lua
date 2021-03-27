@@ -1,5 +1,6 @@
 local _c = require '_config'
 local _common = require '_common'
+--local _presets = require '_presets'
 
 local _timers = { }
 local path = AshitaCore:GetAshitaInstallPath() .. '/config/timers/timers.json'
@@ -60,6 +61,7 @@ _timers.create_timer = function( duration, label, ... )
 			local idx = 1
 			for i=1,#reps do
 				local rx = ashita.regex.match( reps[i], '^x(\\d*)$' )
+				if (rx == nil) then rx = ashita.regex.match( reps[i], '^(\\d*)x$' ) end
 				local t --new timer
 				if ( rx ~= nil ) then
 					local x = rx[1]

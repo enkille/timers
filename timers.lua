@@ -1,6 +1,6 @@
 _addon.author   = 'Enkille'
 _addon.name     = 'Timers'
-_addon.version  = '0.0.1'
+_addon.version  = '0.1.0'
 
 require 'common'
 require 'json.json'
@@ -10,13 +10,21 @@ require 'stringex'
 local _common = require '_common'
 local _t = require '_timers'
 local _config = require '_config'
+local _presets = require '_presets'
 
 if (ashita.file.dir_exists(AshitaCore:GetAshitaInstallPath() .. '/config/timers') == false) then
 	ashita.file.create_dir(AshitaCore:GetAshitaInstallPath() .. '/config/timers')
 end
 
+if (ashita.file.dir_exists(AshitaCore:GetAshitaInstallPath() .. '/config/timers/presets') == false) then
+	ashita.file.create_dir(AshitaCore:GetAshitaInstallPath() .. '/config/timers/presets')
+end
+
 ashita.register_event('load', function()
 	_config.load()
+	if ( _config.settings['profile'] ~= nil ) then
+		_presets.load(_config.settings['profile'])
+	end
 end)
 
 ashita.register_event('incoming_text', function(mode, chat, modifiedmode, modifiedmessage, blocked)
@@ -62,6 +70,7 @@ ashita.register_event('command', function(command, ntype)
 			_common.msg ( '  clear: Clears all timers' )
 			_common.msg ( '  extend: Add time to an existing timer' )
 			_common.msg ( '  list: List existing timers along with their IDs' )
+			_common.msg ( '  profile: Create or load a timer preset profile' )
 			_common.msg ( 'For additional help, type "/timer help [subcommand]"' )
 		elseif args[2] == 'list' then
 			_t.list_timers()
@@ -84,6 +93,7 @@ ashita.register_event('command', function(command, ntype)
 				_common.msg ( '  [repetitions]: Optional - Specifies repeating timers' )
 				_common.msg ( '  Example: /timer add 3m15s "Monster Respawn"' )
 				_common.msg ( '  Example: /timer add 21h "HNM Respawn" 30m 30m 30m' )
+				_common.msg ( '  Example: /timer add 21h "HNM Respawn" 30m x3' )
 			elseif args[3] == 'tod' then
 				_common.msg ( 'Command: /timer tod [time] [duration] [label] [[repetitions]]' )
 				_common.msg ( '  Will add a ToD timer based on given parameters' )
@@ -95,6 +105,7 @@ ashita.register_event('command', function(command, ntype)
 				_common.msg ( '  [repetitions]: Optional - Specifies repeating timers' )
 				_common.msg ( '  Example: /timer tod 8:45am 3m15s "Monster Respawn"' )
 				_common.msg ( '  Example: /timer tod 8:45:37 21h "HNM Respawn" 30m 30m 30m' )
+				_common.msg ( '  Example: /timer tod 8:45:37 21h "HNM Respawn" 30m x3' )
 			elseif args[3] == 'remove' then
 				_common.msg ( 'Command: /timer remove [index]' )
 				_common.msg ( '  Will remove a specified timer' )
@@ -113,13 +124,25 @@ ashita.register_event('command', function(command, ntype)
 				_common.msg ( '  Available options:' )
 				_common.msg ( '    autohide [true|false]' )
 				_common.msg ( '    direction [ltr|rtl]' )
+			elseif args[3] == 'profile' then
+				_common.msg ( 'Command: /timer profile load [name]' )
+				_common.msg ( '  Load a saved profile' )
+				_common.msg ( 'Command: /timer profile new [name]' )
+				_common.msg ( '  Create a profile' )
 				--_common.msg ( '    scale [single|all]' )
 				--_common.msg ( '  For additional help, type "/timer help config [option]' )
 			end
 		elseif args[2] == 'add' then
-			_t.create_timer ( args[3], "unnamed" )
+			--_t.create_timer ( args[3], "unnamed" )
+			_presets.create_timer ( args[3] )
+		elseif args[2] == 'profile' then
+			if args[3] == 'list' then
+				_presets.list_profiles()
+			end
 		elseif args[2] == 'remove' then
 			_t.remove_timer ( args[3] )
+		elseif args[2] == 'tod' then
+			_t.load_preset ( args[3] )
 		end
 	end
 
@@ -127,8 +150,21 @@ ashita.register_event('command', function(command, ntype)
 		if args[2] == 'add' then
 			_t.create_timer ( args[3], args[4] )
 		end
+		if args[2] == 'tod' then
+			_presets.create_timer ( args[3], args[4] )
+		end
 		if args[2] == 'extend' then
 			_t.extend_timer ( args[3], args[4] )
+		end
+		if args[2] == 'profile' then
+			local valid_create = { 'new', 'create', 'save' }
+			if args[3] == 'load' then
+				_presets.load(args[4])
+				_config.settings['profile'] = args[4]
+				_config.save()
+			elseif _common.has_value( valid_create, args[3] ) then
+				_presets.create(args[4])
+			end
 		end
 		if args[2] == 'config' then
 			local valid_true = { 1, 'true', 'yes' }

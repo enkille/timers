@@ -16,7 +16,8 @@ local defaults = {
 	anchor = "BOTTOMLEFT",
 	notify = nil,
 	notifyonlyifleader = true,
-	sortby = 'time'
+	sortby = 'time',
+	preset = nil
 }
 
 _config.visible = false
@@ -42,6 +43,7 @@ _config.load = function()
 		_config.save()
 		return true;
 	else
+		_config.settings = defaults
 		for k,v in pairs(data) do
 			_config.settings[k] = v
 		end
