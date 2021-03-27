@@ -54,13 +54,32 @@ _timers.create_timer = function( duration, label, ... )
 	table.insert(_timers.timers, timer)
 
 	if ( reps ~= nil ) then
+		local prev = seconds
 		if ( #reps > 0 ) then
 			local s = seconds
+			local idx = 1
 			for i=1,#reps do
-				local rep = _common.parse_duration( reps[i] )
-				s = s + rep
-				local t = _timers.create_timer( s, label .. ' [' .. tostring(i) .. ']' )
-				t.parent = timer.id
+				local rx = ashita.regex.match( reps[i], '^x(\\d*)$' )
+				local t --new timer
+				if ( rx ~= nil ) then
+					local x = rx[1]
+					if ( tonumber(x) > 1 ) then
+						for xl=2,x do
+							s = s + prev
+							t = _timers.create_timer( s, label .. ' [' .. tostring(idx) .. ']' )
+							t.parent = timer.id
+							idx = idx + 1
+						end
+					end
+				else
+					local rep = _common.parse_duration( reps[i] )
+					s = s + rep
+					t = _timers.create_timer( s, label .. ' [' .. tostring(idx) .. ']' )
+					t.parent = timer.id
+					idx = idx + 1
+					prev = rep
+				end
+				
 			end
 		end
 	end
