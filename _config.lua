@@ -17,8 +17,12 @@ local defaults = {
 	notify = nil,
 	notifyonlyifleader = true,
 	sortby = 'time',
-	preset = nil
+	sortdirection = 'desc',
+	preset = nil,
+	maxvisible = 10
 }
+
+_config.defaults = defaults
 
 _config.visible = false
 

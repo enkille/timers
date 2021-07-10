@@ -9,6 +9,7 @@ _timers.timers = { }
 _timers.timerpadlength = 0
 _timers.alwaysshow = false
 _timers.config = { }
+_timers.allfinish = 0
 
 _timers.list_timers = function()
 	for k,v in ipairs( _timers.timers ) do
@@ -18,8 +19,13 @@ end
 
 _timers.sort = function()
 	local sortby = _c.settings.sortby or 'time'
+	local sortdirection = _c.settings.sortdirection or _c.defaults.sortdirection
 	if ( sortby == 'time' ) then
-		table.sort( _timers.timers, function(a, b) return a.finish > b.finish end  )
+		if ( sortdirection == 'asc' ) then
+			table.sort( _timers.timers, function(a, b) return a.finish > b.finish end  )
+		else
+			table.sort( _timers.timers, function(a, b) return a.finish < b.finish end  )
+		end
 	elseif ( sortby == 'pct' ) then
 		table.sort( _timers.timers, function(a, b) return (1-((a.finish - os.time()) / (a.finish - a.start))) > (1-((b.finish - os.time()) / (b.finish - b.start))) end  )
 	end
@@ -37,6 +43,16 @@ _timers.update_max_length = function()
 
 	_timers.timerpadlength = maxLength
 
+end
+
+_timers.update_all_finish_time = function()
+	local m = 0
+	for k,v in ipairs(_timers.timers) do
+		if v.finish > m then
+			m = v.finish
+		end
+	end
+	_timers.allfinish = m
 end
 
 _timers.create_timer = function( duration, label, ... )
@@ -87,6 +103,7 @@ _timers.create_timer = function( duration, label, ... )
 	end
 
 	_timers.update_max_length()
+	_timers.update_all_finish_time()
 	_timers.sort()
 	_timers.save()
 
@@ -104,6 +121,7 @@ _timers.update_start_time = function( id, start )
 			end
 		end
 		_timers.update_max_length()
+		_timers.update_all_finish_time()
 		_timers.sort()
 		_timers.save()
 	end
@@ -156,7 +174,12 @@ end
 _timers.draw = function()
 
 	local lineHeight = imgui.GetFontSize() + 4
-	local windowHeight = ((lineHeight + imgui.style.ItemSpacing.y) * (table.getn(_timers.timers) + 1)) + imgui.style.FramePadding.y
+	local max = _c.settings.maxvisible or _c.default.maxvisible
+	local windowHeight = ((lineHeight + imgui.style.ItemSpacing.y) * math.min((table.getn(_timers.timers) + 1), max + 1)) + imgui.style.FramePadding.y
+	local count = 0
+	local barscale
+
+	_timers.update_all_finish_time()
 
 	if windowHeight < 50 then windowHeight = 50 end
 
@@ -170,18 +193,23 @@ _timers.draw = function()
 	for k,v in ipairs( _timers.timers ) do
 		v.timeremaining = v.finish - os.time()
 		if ( v.timeremaining > 0 ) then
-			v.labelpadded = string.lpad(v.label, ' ', _timers.timerpadlength) .. ': ' .. string.lpad(_common.format_time(v.timeremaining), ' ', 8)
+			if ( count < max ) then
+				v.labelpadded = string.lpad(v.label, ' ', _timers.timerpadlength) .. ': ' .. string.lpad(_common.format_time(v.timeremaining), ' ', 8)
 
-			imgui.PushStyleColor(ImGuiCol_PlotHistogram, 1.0, 0.61, 0.61, 0.6)
-			imgui.Text( v.labelpadded )
-			imgui.SameLine()
-			imgui.PushStyleColor(ImGuiCol_Text, 1.0, 1.0, 1.0, 1.0)
-			if _c.settings.direction == 'rtl' then
-				imgui.ProgressBar(1-((v.finish - os.time()) / (v.finish - v.start)), -1, lineHeight, '')
-			else
-				imgui.ProgressBar(((v.finish - os.time()) / (v.finish - v.start)), -1, lineHeight, '')
+				imgui.PushStyleColor(ImGuiCol_PlotHistogram, 1.0, 0.61, 0.61, 0.6)
+				imgui.Text( v.labelpadded )
+				imgui.SameLine()
+				imgui.PushStyleColor(ImGuiCol_Text, 1.0, 1.0, 1.0, 1.0)
+				local progress = (v.finish - os.time()) / (v.finish - v.start)
+				--local progress = (_timers.allfinish - os.time()) / (_timers.allfinish - v.start)
+				if _c.settings.direction == 'rtl' then
+					imgui.ProgressBar(1 - progress, -1, lineHeight, '')
+				else
+					imgui.ProgressBar(progress, -1, lineHeight, '')
+				end
+				imgui.PopStyleColor(2)
+				count = count + 1
 			end
-			imgui.PopStyleColor(2)
 		end
 
 		if ( v.timeremaining <= 0 ) then

@@ -204,6 +204,24 @@ ashita.register_event('command', function(command, ntype)
 				end
 			end
 
+			if args[3] == 'sortdirection' then
+				if _common.has_value( { 'up', 'asc', 'ascending' }, args[4] ) then
+					_config.settings.sortdirection = 'asc'
+					_t.sort()
+					_common.msg( 'sortdirection' )
+				elseif _common.has_value( { 'down', 'desc', 'descending' }, args[4] ) then
+					_config.settings.sortdirection = 'desc'
+					_t.sort()
+					_common.msg( 'sortdirection' )
+				end
+			end
+
+			if args[3] == 'maxvisible' then
+				if tonumber(args[4]) > 1 then
+					_config.settings.maxvisible = tonumber(args[4])
+				end
+			end
+
 			_config.save()
 
 		end
