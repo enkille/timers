@@ -54,7 +54,7 @@ Allows players to create arbitrary timers.
 * * `name` is required when creating a profile or loading a profile
   
 ## Profiles
-Profiles are a way of storing timers with specific names. This allows quick creation of timers with spawn windows and repeating spawn times. The primary purpose for utilizing multiple profiles is to allow for variations in private servers.
+Profiles are a way of storing timers with specific names. This allows quick creation of timers with spawn windows and repeating spawn times. The primary purpose for utilizing multiple profiles is to allow for variations in private servers. Profiles are stored in the *[AshitaRoot]/config/timers/presets* directory.
 
 Example:
 ```json
