@@ -52,6 +52,10 @@ Allows players to create arbitrary timers.
 * Syntax: `/timer profile [load|new|list] [[name]]`
 * * Load a saved profile or create a new profile
 * * `name` is required when creating a profile or loading a profile
+
+`config`: Set addon configuration options
+* Syntax: `/timer config [option] [value]`
+* * Options are listed at the bottom of this readme
   
 ## Profiles
 Profiles are a way of storing timers with specific names. This allows quick creation of timers with spawn windows and repeating spawn times. The primary purpose for utilizing multiple profiles is to allow for variations in private servers. Profiles are stored in the *[AshitaRoot]/config/timers/presets* directory.
@@ -82,3 +86,13 @@ Example:
 With this configuration loaded, you can quickly add a respawn timer for any of these HNMs with the following commands:
 * `/timer add kb` Will create a series of timers labeled "behemoth"
 * `/timer tod fafnir 10:30pm` will create a series of timers labeled "fafnir" based on a ToD of 10:30pm.
+
+## Configuration Options
+Options are stored in the *[AshitaRoot]/config/timers/config.json* file. Not every value listed in the file has an implementation. Options may be set with the command `/timer config [option] [value]`. Current valid options are listed below, with default values in bold.
+
+| Option | Values | Notes |
+| :---: | :---: | --- |
+| autohide | **true** \| false | Sets whether or not the timer window hides automatically when all timers are finished
+| notifyonfinish | true \| **false** | Sets whether or not to play a sound when a timer ends
+| sortdirection | asc \| **desc** | Sets whether timers are listed in ascending or descending order
+| maxvisible | integer (**10**) | Sets the maximum number of visible timers
