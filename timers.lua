@@ -222,6 +222,14 @@ ashita.register_event('command', function(command, ntype)
 				end
 			end
 
+			if args[3] == 'notifyonfinish' then
+				if _common.has_value( valid_true, args[4] ) then
+					_config.settings.notifyonfinish = true
+				elseif _common.has_value( valid_false, args[4] ) then
+					_config.settings.notifyonfinish = false
+				end
+			end
+
 			_config.save()
 
 		end

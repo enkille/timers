@@ -174,10 +174,10 @@ end
 _timers.draw = function()
 
 	local lineHeight = imgui.GetFontSize() + 4
-	local max = _c.settings.maxvisible or _c.default.maxvisible
+	local max = _c.settings.maxvisible or _c.defaults.maxvisible
 	local windowHeight = ((lineHeight + imgui.style.ItemSpacing.y) * math.min((table.getn(_timers.timers) + 1), max + 1)) + imgui.style.FramePadding.y
 	local count = 0
-	local barscale
+	local notifyonfinish = _c.settings.notifyonfinish or _c.defaults.notifyonfinish
 
 	_timers.update_all_finish_time()
 
@@ -219,6 +219,9 @@ _timers.draw = function()
 					table.remove(v.rep, 1)
 					_timers.create_timer( d, v.label, v.rep )
 				end
+			end
+			if ( notifyonfinish == true ) then
+				ashita.misc.play_sound(AshitaCore:GetAshitaInstallPath() .. '/addons/timers/audio/notification.wav')
 			end
 			v.expired = true
 			_timers.clear_expired()

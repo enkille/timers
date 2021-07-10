@@ -19,7 +19,8 @@ local defaults = {
 	sortby = 'time',
 	sortdirection = 'desc',
 	preset = nil,
-	maxvisible = 10
+	maxvisible = 10,
+	notifyonfinish = false
 }
 
 _config.defaults = defaults
