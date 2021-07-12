@@ -236,6 +236,12 @@ ashita.register_event('command', function(command, ntype)
 				end
 			end
 
+			if args[3] == 'width' then
+				if tonumber(args[4]) > 1 then
+					_config.settings.width = tonumber(args[4])
+				end
+			end
+
 			_config.save()
 
 		end

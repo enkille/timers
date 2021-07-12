@@ -96,3 +96,4 @@ Options are stored in the *[AshitaRoot]/config/timers/config.json* file. Not eve
 | notifyonfinish | true \| **false** | Sets whether or not to play a sound when a timer ends
 | sortdirection | asc \| **desc** | Sets whether timers are listed in ascending or descending order
 | maxvisible | integer (**10**) | Sets the maximum number of visible timers
+| width | integer (**500**) | Sets the width of the timer window

@@ -14,13 +14,13 @@ local defaults = {
 	position_x = 100,
 	position_y = 100,
 	anchor = "BOTTOMLEFT",
-	notify = nil,
+	notifyonfinish = false,
 	notifyonlyifleader = true,
 	sortby = 'time',
 	sortdirection = 'desc',
 	preset = nil,
 	maxvisible = 10,
-	notifyonfinish = false
+  width = 500
 }
 
 _config.defaults = defaults
@@ -53,6 +53,23 @@ _config.load = function()
 			_config.settings[k] = v
 		end
 	end
+end
+
+_config.draw = function()
+	local lineHeight = imgui.GetFontSize() + 4
+	local lineCount = 10
+	local windowHeight = ((lineHeight + imgui.style.ItemSpacing.y) * lineCount) + imgui.style.FramePadding.y
+
+	if windowHeight < 50 then windowHeight = 50 end
+
+	imgui.SetNextWindowSize(500, windowHeight, ImGuiSetCond_Always)
+
+	if (imgui.Begin('Config') == false) then
+		imgui.End()
+		return
+	end
+
+	imgui.End()
 end
 
 return _config

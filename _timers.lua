@@ -214,6 +214,7 @@ _timers.draw = function()
 	local lineHeight = imgui.GetFontSize() + 4
 	local max = _c.settings.maxvisible or _c.defaults.maxvisible
 	local windowHeight = ((lineHeight + imgui.style.ItemSpacing.y) * math.min((table.getn(_timers.timers) + 1), max + 1)) + imgui.style.FramePadding.y
+	local windowWidth = _c.settings.width or _c.defaults.width
 	local count = 0
 	local notifyonfinish = _c.settings.notifyonfinish or _c.defaults.notifyonfinish
 
@@ -221,7 +222,7 @@ _timers.draw = function()
 
 	if windowHeight < 50 then windowHeight = 50 end
 
-	imgui.SetNextWindowSize(500, windowHeight, ImGuiSetCond_Always)
+	imgui.SetNextWindowSize(windowWidth, windowHeight, ImGuiSetCond_Always)
 
 	if (imgui.Begin('Timers') == false) then
 		imgui.End()
