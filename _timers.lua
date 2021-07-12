@@ -17,6 +17,14 @@ _timers.list_timers = function()
 	end
 end
 
+_timers.get_timer_by_name = function(name)
+	for k,v in ipairs( _timers.timers ) do
+		if ( v.label == name ) then
+			return _timers.timers[k]
+		end
+	end
+end
+
 _timers.sort = function()
 	local sortby = _c.settings.sortby or 'time'
 	local sortdirection = _c.settings.sortdirection or _c.defaults.sortdirection
@@ -57,57 +65,73 @@ end
 
 _timers.create_timer = function( duration, label, ... )
 
-	local reps = ... or nil
 	local seconds = _common.parse_duration( duration )
 
-	local timer = { }
-	timer.id = _common.generate_uuid()
-	timer.parent = nil
-	timer.start = os.time()
-	timer.finish = timer.start + seconds
-	timer.label = label
-	timer.expired = false
-	--timer.rep = reps
-	table.insert(_timers.timers, timer)
+	if ( _timers.get_timer_by_name(label) ~= nil ) then
+		_common.msg("Timer names must be unique.")
+		return nil
+	end
 
-	if ( reps ~= nil ) then
-		local prev = seconds
-		if ( #reps > 0 ) then
-			local s = seconds
-			local idx = 1
-			for i=1,#reps do
-				local rx = ashita.regex.match( reps[i], '^x(\\d*)$' )
-				if (rx == nil) then rx = ashita.regex.match( reps[i], '^(\\d*)x$' ) end
-				local t --new timer
-				if ( rx ~= nil ) then
-					local x = rx[1]
-					if ( tonumber(x) > 1 ) then
-						for xl=2,x do
-							s = s + prev
+	if ( seconds ~= nil ) then
+		local reps = ... or nil
+
+		local timer = { }
+		timer.id = _common.generate_uuid()
+		timer.parent = nil
+		timer.start = os.time()
+		timer.finish = timer.start + seconds
+		timer.label = label
+		timer.expired = false
+		--timer.rep = reps
+		table.insert(_timers.timers, timer)
+
+		if ( reps ~= nil ) then
+			local valid = true
+			local prev = seconds
+			if ( #reps > 0 ) then
+				local s = seconds
+				local idx = 1
+				for i=1,#reps do
+					local rx = ashita.regex.match( reps[i], '^x(\\d+)$' )
+					if (rx == nil) then rx = ashita.regex.match( reps[i], '^(\\d+)x$' ) end
+					local t --new timer
+					if ( rx ~= nil and valid == true ) then
+						local x = rx[1]
+						if ( tonumber(x) > 1 ) then
+							for xl=2,x do
+								s = s + prev
+								t = _timers.create_timer( s, label .. ' [' .. tostring(idx) .. ']' )
+								t.parent = timer.id
+								idx = idx + 1
+							end
+						end
+					else
+						local rep = _common.parse_duration( reps[i] )
+						if ( rep ~= nil and valid == true ) then
+							s = s + rep
 							t = _timers.create_timer( s, label .. ' [' .. tostring(idx) .. ']' )
 							t.parent = timer.id
 							idx = idx + 1
+							prev = rep
+						else
+							_common.msg( "When adding a timer with spaces in the name, use quotes." )
+							valid = false
 						end
 					end
-				else
-					local rep = _common.parse_duration( reps[i] )
-					s = s + rep
-					t = _timers.create_timer( s, label .. ' [' .. tostring(idx) .. ']' )
-					t.parent = timer.id
-					idx = idx + 1
-					prev = rep
+					
 				end
-				
 			end
 		end
+
+		_timers.update_max_length()
+		_timers.update_all_finish_time()
+		_timers.sort()
+		_timers.save()
+
+		return timer
+	else
+		_common.msg("Invalid timer duration (" .. duration .. ")")
 	end
-
-	_timers.update_max_length()
-	_timers.update_all_finish_time()
-	_timers.sort()
-	_timers.save()
-
-	return timer
 
 end
 
@@ -136,10 +160,25 @@ _timers.create_timer_from_tod = function( time, duration, label, ... )
 	_timers.update_start_time( t.id, start )
 end
 
-_timers.remove_timer = function( id )
-	table.remove(_timers.timers, id)
-	_timers.update_max_length()
-	_timers.save()
+_timers.remove_timer = function( name )
+	local t = _timers.get_timer_by_name(name) or nil
+	if ( t ~= nil ) then
+		tid = t.id or nil
+		if ( tid ~= nil ) then
+			for i=1,#_timers.timers,1 do
+				local ct = _timers.timers[i] or nil
+				if ( ct ~= nil ) then
+					local ci = ct['id'] or nil
+					if ( ci == t.id ) then
+						found = true
+						table.remove(_timers.timers, i)
+						_timers.update_max_length()
+						_timers.save()
+					end
+				end
+			end
+		end
+	end
 end
 
 _timers.clear_timers = function()
@@ -147,25 +186,24 @@ _timers.clear_timers = function()
 	_timers.save()
 end
 
-_timers.extend_timer = function( id, duration )
-	local i
-	local d
-
-	i = tonumber(id)
-	d = _common.parse_duration(duration)
-
-	if ( _timers.timers[i] ~= nil and d > 0 ) then
-		_timers.timers[i].finish = _timers.timers[i].finish + d
-	else
-		msg('timer "' .. tostring(i) .. '"not located')
+_timers.extend_timer = function( name, duration )
+	local t = _timers.get_timer_by_name(name) or nil
+	if ( t ~= nil ) then
+		local d
+		d = _common.parse_duration(duration)
+		if ( d ~= nil ) then
+			t.finish = t.finish + d
+		else
+			_common.msg('timer "' .. tostring(i) .. '"not located')
+		end
+		_timers.save()
 	end
-	_timers.save()
 end
 
 _timers.clear_expired = function()
 	for k,v in ipairs( _timers.timers ) do
 		if ( v.expired == true ) then
-			_timers.remove_timer(k)
+			_timers.remove_timer(v.label)
 			return
 		end
 	end

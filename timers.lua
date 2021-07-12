@@ -43,7 +43,7 @@ ashita.register_event('render', function()
 		end
 	end
 
-	if _config.visible == true then _config.show() end
+	--if _config.visible == true then _config.draw() end
 
 end)
 
@@ -107,13 +107,13 @@ ashita.register_event('command', function(command, ntype)
 				_common.msg ( '  Example: /timer tod 8:45:37 21h "HNM Respawn" 30m 30m 30m' )
 				_common.msg ( '  Example: /timer tod 8:45:37 21h "HNM Respawn" 30m x3' )
 			elseif args[3] == 'remove' then
-				_common.msg ( 'Command: /timer remove [index]' )
+				_common.msg ( 'Command: /timer remove [name]' )
 				_common.msg ( '  Will remove a specified timer' )
-				_common.msg ( '  [index]: Required - the index of the timer to remove' )
+				_common.msg ( '  [name]: Required - the name of the timer to remove' )
 			elseif args[3] == 'extend' then
-				_common.msg ( 'Command: /timer extend [index] [duration]' )
+				_common.msg ( 'Command: /timer extend [name] [duration]' )
 				_common.msg ( '  Will extend a timer by a specified duration' )
-				_common.msg ( '  [index]: Required - the index of the timer to extend' )
+				_common.msg ( '  [name]: Required - the name of the timer to extend' )
 				_common.msg ( '  [duration]: Required - the amount of time to add' )
 			elseif args[3] == 'clear' then
 				_common.msg ( 'Command: /timer clear' )
@@ -143,6 +143,12 @@ ashita.register_event('command', function(command, ntype)
 			_t.remove_timer ( args[3] )
 		elseif args[2] == 'tod' then
 			_t.load_preset ( args[3] )
+		--[[
+		elseif args[2] == 'test' then
+			_common.msg('testing')
+			local test = _common.parse_duration(args[3])
+			_common.msg(test or "nil value")
+			]]
 		end
 	end
 

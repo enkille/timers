@@ -29,26 +29,35 @@ _common.parse_duration = function ( duration )
 	local seconds = 0
 
 	if ( duration ~= nil ) then
-		local rx = ashita.regex.match( duration, '^(\\d*)$' )
+		local rx = ashita.regex.match( duration, '^(\\d+)$' )
 		if ( rx ~= nil ) then
 			seconds = tonumber(rx[1])
 		else
-			local h = ashita.regex.search( duration, '(\\d*)[H|h]{1}' )
-			local m = ashita.regex.search( duration, '(\\d*)[M|m]{1}' )
-			local s = ashita.regex.search( duration, '(\\d*)[S|s]{1}' )
-
-			if ( h ~= nil ) then
-				seconds = seconds + (tonumber(h[1]) * 60 * 60)
-			end
-			if ( m ~= nil ) then
-				seconds = seconds + (tonumber(m[1]) * 60)
-			end
-			if ( s ~= nil ) then
-				seconds = seconds + tonumber(s[1])
+			local h = ashita.regex.search( duration, '(\\d+)[H|h]{1}' )
+			local m = ashita.regex.search( duration, '(\\d+)[M|m]{1}' )
+			local s = ashita.regex.search( duration, '(\\d+)[S|s]{1}' )
+			if ( h == nil and m == nil and s == nil ) then
+				return nil
+			else
+				if ( h ~= nil ) then
+					if ( h ~= nil ) then
+						seconds = seconds + (tonumber(h[1]) * 60 * 60)
+					end
+				end
+				if ( m ~= nil ) then
+					if ( m ~= nil ) then
+						seconds = seconds + (tonumber(m[1]) * 60)
+					end
+				end
+				if ( s ~= nil ) then
+					if ( s ~= nil ) then
+						seconds = seconds + tonumber(s[1])
+					end
+				end
 			end
 		end
 	else
-		seconds = 0
+		return nil
 	end
 
 	return seconds

@@ -31,18 +31,18 @@ Allows players to create arbitrary timers.
 * * `/timer tod 8:45:37 21h "HNM Respawn" 30m x3`
 * **A known limitation of this system involves use cases where the ToD is greater than 1 day old. There is currently no setup for adding a date to the ToD specified. If the current time is 12:00pm and a ToD of 12:01pm is specified, the assumption is the ToD was 23 hours 59 minutes ago.**
 
-`list`: List existing timers along with their IDs
+`list`: List existing timers
 * Syntax: `/timer list`
 
 `remove`: Removes a specific timer
-* Syntax: `/timer remove [index]`
+* Syntax: `/timer remove [name]`
 * * Will remove a specified timer
-* `[index]`: Required - the index of the timer to remove
+* `[name]`: Required - the name of the timer to remove
 
 `extend`: Add time to an existing timer
-* Syntax: `/timer extend [index] [duration]`
+* Syntax: `/timer extend [name] [duration]`
 * * Will extend a timer by a specified duration
-* `[index]`: Required - the index of the timer to extend
+* `[name]`: Required - the name of the timer to extend
 * `[duration]`: Required - the amount of time to add
 
 `clear`: Clears all timers
